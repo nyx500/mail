@@ -30,27 +30,28 @@ function compose_email() {
         }
 
         fetch('/emails', {
-            method: 'POST',
-            body: JSON.stringify(emailObj)
-        }).then(response => response.json()).then(result => {
+                method: 'POST',
+                body: JSON.stringify(emailObj)
+            }).then(response => response.json()).then(result => {
 
-            console.log(result);
+                console.log(result);
 
-            if (result.error) {
+                if (result.error) {
 
-                document.querySelector('#message').innerHTML = `SENDING FAILED: ${result.error}`
-                document.querySelector('#message').style.color = 'red';
-                document.querySelector('#compose-recipients').value = '';
+                    document.querySelector('#message').innerHTML = `SENDING FAILED: ${result.error}`
+                    document.querySelector('#message').style.color = 'red';
+                    document.querySelector('#compose-recipients').value = '';
 
-                if (result.error !== "POST request required.") {
-                    document.querySelector('#compose-recipients').style.outline = '2px solid red';
-                    document.querySelector('#compose-recipients').placeholder = "Please enter the email address of an existing (valid) recipient!";
+                    if (result.error !== "POST request required.") {
+                        document.querySelector('#compose-recipients').style.outline = '2px solid red';
+                        document.querySelector('#compose-recipients').placeholder = "Please enter the email address of an existing (valid) recipient!";
+                    }
+
+                } else {
+                    load_mailbox('sent');
                 }
-
-            } else {
-                load_mailbox('sent');
-            }
-        });
+            })
+            .catch(err => console.log(err));
 
         return false;
     };
