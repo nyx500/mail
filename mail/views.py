@@ -34,7 +34,7 @@ def compose(request):
     emails = [email.strip() for email in data.get("recipients").split(",")]
     if emails == [""]:
         return JsonResponse({
-            "error": "At least one recipient required."
+            "error": "At least one recipient required!"
         }, status=400)
 
     # Convert email addresses to users
