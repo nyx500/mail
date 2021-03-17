@@ -72,9 +72,34 @@ function load_mailbox(mailbox) {
         .then(emails => {
             console.log(emails);
             emails.forEach(email => {
-                const div = document.createElement('div');
-                div.innerHTML = email["sender"] + email["subject"] + email["timestamp"];
-                document.querySelector('#emails-view').append(div);
+
+                const emailDiv = document.createElement('div');
+                emailDiv.style.border = '1.6px solid black';
+                emailDiv.style.padding = '5px';
+                emailDiv.style.display = 'flex';
+
+                if (email.read && mailbox === 'inbox') {
+                    emailDiv.style.backgroundColor = 'grey';
+                }
+
+                document.querySelector('#emails-view').append(emailDiv);
+
+                const senderDiv = document.createElement('div');
+                senderDiv.innerHTML = email.sender;
+                senderDiv.style.fontWeight = 'bold';
+                emailDiv.append(senderDiv);
+
+                const subjectDiv = document.createElement('div');
+                subjectDiv.innerHTML = email.subject;
+                subjectDiv.style.marginLeft = '22px';
+                emailDiv.append(subjectDiv);
+
+                const timestampDiv = document.createElement('div');
+                timestampDiv.innerHTML = email.timestamp;
+                timestampDiv.style.color = 'grey';
+                timestampDiv.style.marginLeft = 'auto';
+                emailDiv.append(timestampDiv);
+
             })
         });
 };
