@@ -70,7 +70,11 @@ function load_mailbox(mailbox) {
     fetch(`/emails/${mailbox}`)
         .then(response => response.json())
         .then(emails => {
-            document.querySelector('#emails-view').innerHTML += emails;
             console.log(emails);
+            emails.forEach(email => {
+                const div = document.createElement('div');
+                div.innerHTML = email["sender"] + email["subject"] + email["timestamp"];
+                document.querySelector('#emails-view').append(div);
+            })
         });
 };
