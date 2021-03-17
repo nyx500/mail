@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
 
     // Show compose view and hide other views
+    document.querySelector('#email-view').style.display = 'none';
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
 
@@ -57,10 +58,10 @@ function compose_email() {
     };
 }
 
-
 function load_mailbox(mailbox) {
 
     // Show the mailbox and hide other views
+    document.querySelector('#email-view').style.display = 'none';
     document.querySelector('#emails-view').style.display = 'block';
     document.querySelector('#compose-view').style.display = 'none';
 
@@ -100,6 +101,30 @@ function load_mailbox(mailbox) {
                 timestampDiv.style.marginLeft = 'auto';
                 emailDiv.append(timestampDiv);
 
-            })
-        });
+                emailDiv.addEventListener('click', () => {
+                    load_email(email);
+                });
+            });
+        })
 };
+
+function load_email(email) {
+
+    document.querySelector('#email-view').style.display = 'block';
+
+    fetch(`/emails/${email.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            read: true
+        })
+    });
+
+    fetch(`/emails/${email.id}`)
+        .then(response => response.json())
+        .then(email => {
+            document.querySelector('#compose-view').style.display = 'none';
+            document.querySelector('#emails-view').style.display = 'none';
+            document.querySelector('#email-view').innerHTML = 'From: ' + email.sender + '<br>' + 'To: ' + email.recipients + '<br>' +
+                email.subject + '<br>' + email.body + '<br>' + email.timestamp;
+        });
+}
