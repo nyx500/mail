@@ -188,6 +188,16 @@ function load_email(email) {
 
             const archiveButton = document.createElement('button');
             archiveButton.style.order = '1';
+            archiveButton.style.borderRadius = '4px';
+            archiveButton.style.color = 'navy';
+            archiveButton.style.border = '2px solid dodgerblue';
+            archiveButton.style.backgroundColor = 'powderblue';
+            archiveButton.addEventListener('mouseover', () => {
+                archiveButton.style.backgroundColor = 'skyblue';
+            })
+            archiveButton.addEventListener('mouseleave', () => {
+                archiveButton.style.backgroundColor = 'powderblue';
+            })
 
             if (email.archived === false) {
                 archiveButton.innerHTML = 'Archive';
@@ -201,22 +211,25 @@ function load_email(email) {
 
                 if (archiveButton.innerHTML === 'Archive') {
                     fetch(`/emails/${email.id}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            archived: true
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                archived: true
+                            })
                         })
-                    });
-                    load_mailbox('inbox');
+                        .then(() => {
+                            load_mailbox('inbox');
+                        });
                 } else {
                     fetch(`/emails/${email.id}`, {
-                        method: 'PUT',
-                        body: JSON.stringify({
-                            archived: false
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                archived: false
+                            })
                         })
-                    });
-                    load_mailbox('inbox');
+                        .then(() => {
+                            load_mailbox('inbox');
+                        });
                 }
-
             }
         });
 }
