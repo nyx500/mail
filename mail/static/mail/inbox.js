@@ -122,9 +122,56 @@ function load_email(email) {
     fetch(`/emails/${email.id}`)
         .then(response => response.json())
         .then(email => {
+
             document.querySelector('#compose-view').style.display = 'none';
             document.querySelector('#emails-view').style.display = 'none';
-            document.querySelector('#email-view').innerHTML = 'From: ' + email.sender + '<br>' + 'To: ' + email.recipients + '<br>' +
-                email.subject + '<br>' + email.body + '<br>' + email.timestamp;
+
+            // Empties div every time email is clicked on, so that the email doesn't keep getting appended every time
+            const emailContainer = document.querySelector('#email-view');
+            emailContainer.textContent = '';
+
+            emailMessageDiv = document.createElement('div');
+            emailMessageDiv.style.border = '1px solid black';
+            emailMessageDiv.style.padding = '10px';
+            emailMessageDiv.style.display = 'flex';
+            emailMessageDiv.style.flexDirection = 'column';
+            document.querySelector('#email-view').append(emailMessageDiv);
+
+            console.log(emailMessageDiv);
+
+            const subject = document.createElement('div');
+            subject.style.order = '1';
+            subject.innerHTML = `<h3>Subject: ${email.subject}</h3>`;
+            emailMessageDiv.append(subject);
+
+            const senderAndTime = document.createElement('div');
+            senderAndTime.style.paddingTop = '10px';
+            senderAndTime.style.order = '2';
+            senderAndTime.style.display = 'flex';
+            senderAndTime.style.flexDirection = 'row';
+            const sender = document.createElement('div');
+            sender.style.order = '1';
+            sender.style.marginLeft = '0';
+            sender.innerHTML = `<h6>From: ${email.sender}</h6>`;
+            senderAndTime.append(sender);
+            const time = document.createElement('div');
+            time.style.order = '2';
+            time.style.marginLeft = 'auto';
+            time.style.color = 'rgb(100,100,100)';
+            time.innerHTML = `<p>${email.timestamp} </p>`;
+            senderAndTime.append(time);
+            emailMessageDiv.append(senderAndTime);
+
+            const recipients = document.createElement('div');
+            recipients.style.order = '3';
+            recipients.innerHTML = `<h6>Recipients: ${email.recipients}</h6>`;
+            emailMessageDiv.append(recipients);
+
+            const body = document.createElement('div');
+            body.style.order = '4';
+            body.style.paddingTop = '20px';
+            body.style.minHeight = '20rem';
+            body.innerHTML = email.body;
+            emailMessageDiv.append(body);
         });
 }
