@@ -4,58 +4,39 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
     document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
     document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-    document.querySelector('#compose').addEventListener('click', compose_email);
+    let emailExists = null;
+    document.querySelector('#compose').addEventListener('click', compose_email(emailExists));
 
     // By default, load the inbox
     load_mailbox('inbox');
 });
 
-function compose_email() {
+function compose_email(emailExists) {
 
     // Show compose view and hide other views
     document.querySelector('#email-view').style.display = 'none';
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
 
-    // Clear out composition fields
-    document.querySelector('#compose-recipients').value = '';
-    document.querySelector('#compose-subject').value = '';
-    document.querySelector('#compose-body').value = '';
-
-    document.querySelector('#compose-form').onsubmit = function() {
-
-        let emailObj = {
-            recipients: document.querySelector('#compose-recipients').value,
-            subject: document.querySelector('#compose-subject').value,
-            body: document.querySelector('#compose-body').value
+    if (emailExists === null) {
+        // Clear out composition fields if person has not clicked 'reply'
+        document.querySelector('#compose-recipients').value = '';
+        document.querySelector('#compose-subject').value = '';
+        document.querySelector('#compose-body').value = '';
+    } else {
+        document.querySelector('#compose-recipients').value = emailExists.sender;
+        document.querySelector('#compose-recipients').style.color = 'blue';
+        if (emailExists.subject.substring(0, 3).toUpperCase() === 'RE:') {
+            document.querySelector('#compose-subject').value = emailExists.subject;
+        } else {
+            document.querySelector('#compose-subject').value = `Re: ${emailExists.subject}`;
         }
+        document.querySelector('#compose-subject').style.color = 'blue';
 
-        fetch('/emails', {
-                method: 'POST',
-                body: JSON.stringify(emailObj)
-            }).then(response => response.json()).then(result => {
+        document.querySelector('#compose-body').value = `On Jan 1 2020, 12:00 AM ${emailExists.sender} wrote: ${emailExists.body}`;
+    }
 
-                console.log(result);
-
-                if (result.error) {
-
-                    document.querySelector('#message').innerHTML = `SENDING FAILED: ${result.error}`
-                    document.querySelector('#message').style.color = 'red';
-                    document.querySelector('#compose-recipients').value = '';
-
-                    if (result.error !== "POST request required.") {
-                        document.querySelector('#compose-recipients').style.outline = '2px solid red';
-                        document.querySelector('#compose-recipients').placeholder = "Please enter the email address of an existing (valid) recipient!";
-                    }
-
-                } else {
-                    load_mailbox('sent');
-                }
-            })
-            .catch(err => console.log(err));
-
-        return false;
-    };
+    document.querySelector('#compose-form').onsubmit = send_email;
 }
 
 function load_mailbox(mailbox) {
@@ -85,10 +66,22 @@ function load_mailbox(mailbox) {
 
                 document.querySelector('#emails-view').append(emailDiv);
 
-                const senderDiv = document.createElement('div');
-                senderDiv.innerHTML = email.sender;
-                senderDiv.style.fontWeight = 'bold';
-                emailDiv.append(senderDiv);
+
+                const personDiv = document.createElement('div');
+
+                // Shows only the first recipient if there is a whole list of recipients
+                if (mailbox === 'sent') {
+                    if (email.recipients.length > 1) {
+                        personDiv.innerHTML = `Sent to: ${email.recipients[0]}[...]`;
+                    } else {
+                        personDiv.innerHTML = `Sent to: ${email.recipients}`;
+                    }
+                } else {
+                    personDiv.innerHTML = email.sender;
+                }
+
+                personDiv.style.fontWeight = 'bold';
+                emailDiv.append(personDiv);
 
                 const subjectDiv = document.createElement('div');
                 subjectDiv.innerHTML = email.subject;
@@ -231,5 +224,60 @@ function load_email(email) {
                         });
                 }
             }
+
+            const replyButton = document.createElement('button');
+            replyButton.style.order = '2';
+            replyButton.style.marginLeft = '10px';
+            replyButton.style.borderRadius = '4px';
+            replyButton.style.color = 'rebeccapurple';
+            replyButton.style.border = '2px solid rebeccapurple';
+            replyButton.style.backgroundColor = 'thistle';
+            replyButton.addEventListener('mouseover', () => {
+                replyButton.style.backgroundColor = 'plum';
+            })
+            replyButton.addEventListener('mouseleave', () => {
+                replyButton.style.backgroundColor = 'thistle';
+            })
+
+            replyButton.innerHTML = 'Reply';
+
+            buttonArray.append(replyButton);
+
+            replyButton.addEventListener('click', () => compose_email(email));
         });
+}
+
+function send_email() {
+
+    let emailObj = {
+        recipients: document.querySelector('#compose-recipients').value,
+        subject: document.querySelector('#compose-subject').value,
+        body: document.querySelector('#compose-body').value
+    }
+
+    fetch('/emails', {
+            method: 'POST',
+            body: JSON.stringify(emailObj)
+        }).then(response => response.json()).then(result => {
+
+            console.log(result);
+
+            if (result.error) {
+
+                document.querySelector('#message').innerHTML = `SENDING FAILED: ${result.error}`
+                document.querySelector('#message').style.color = 'red';
+                document.querySelector('#compose-recipients').value = '';
+
+                if (result.error !== "POST request required.") {
+                    document.querySelector('#compose-recipients').style.outline = '2px solid red';
+                    document.querySelector('#compose-recipients').placeholder = "Please enter the email address of an existing (valid) recipient!";
+                }
+
+            } else {
+                load_mailbox('sent');
+            }
+        })
+        .catch(err => console.log(err));
+
+    return false;
 }
