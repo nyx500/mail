@@ -58,6 +58,12 @@ function load_mailbox(mailbox) {
                 emailDiv.style.border = '1.6px solid black';
                 emailDiv.style.padding = '5px';
                 emailDiv.style.display = 'flex';
+                emailDiv.onmouseover = function() {
+                    emailDiv.style.cursor = 'pointer';
+                }
+                emailDiv.onmouseleave = function() {
+                    emailDiv.style.cursor = 'default';
+                }
 
                 if (email.read && mailbox === 'inbox') {
                     emailDiv.style.backgroundColor = 'grey';
@@ -181,7 +187,7 @@ function load_email(email) {
             const archiveButton = document.createElement('button');
             archiveButton.style.order = '1';
             archiveButton.style.borderRadius = '4px';
-            archiveButton.style.color = 'navy';
+            archiveButton.style.color = 'dodgerblue';
             archiveButton.style.border = '2px solid dodgerblue';
             archiveButton.style.backgroundColor = 'powderblue';
             archiveButton.addEventListener('mouseover', () => {
