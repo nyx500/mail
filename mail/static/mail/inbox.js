@@ -201,20 +201,20 @@ function load_email(email) {
 
                 if (archiveButton.innerHTML === 'Archive') {
                     fetch(`/emails/${email.id}`, {
-                            method: 'PUT',
-                            body: JSON.stringify({
-                                archived: true
-                            })
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            archived: true
                         })
-                        .then(load_mailbox('inbox'));
+                    });
+                    load_mailbox('inbox');
                 } else {
                     fetch(`/emails/${email.id}`, {
-                            method: 'PUT',
-                            body: JSON.stringify({
-                                archived: false
-                            })
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            archived: false
                         })
-                        .then(load_mailbox('inbox'));
+                    });
+                    load_mailbox('inbox');
                 }
 
             }
