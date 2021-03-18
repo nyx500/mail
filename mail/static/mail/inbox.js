@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
     document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
     document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-    let emailExists = null;
-    document.querySelector('#compose').addEventListener('click', compose_email(emailExists));
+    document.querySelector('#compose').addEventListener('click', () => compose_email(null));
 
     // By default, load the inbox
     load_mailbox('inbox');
@@ -107,6 +106,8 @@ function load_mailbox(mailbox) {
 
 function load_email(email) {
 
+    document.querySelector('#compose-view').style.display = 'none';
+    document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#email-view').style.display = 'block';
 
     fetch(`/emails/${email.id}`, {
@@ -120,8 +121,6 @@ function load_email(email) {
         .then(response => response.json())
         .then(email => {
 
-            document.querySelector('#compose-view').style.display = 'none';
-            document.querySelector('#emails-view').style.display = 'none';
 
             // Empties div every time email is clicked on, so that the email doesn't keep getting appended every time
             const emailContainer = document.querySelector('#email-view');
