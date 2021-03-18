@@ -97,7 +97,11 @@ function load_mailbox(mailbox) {
 
                 const timestampDiv = document.createElement('div');
                 timestampDiv.innerHTML = email.timestamp;
-                timestampDiv.style.color = 'grey';
+                if (emailDiv.style.backgroundColor === 'grey') {
+                    timestampDiv.style.color = 'black';
+                } else {
+                    timestampDiv.style.color = 'grey';
+                }
                 timestampDiv.style.marginLeft = 'auto';
                 emailDiv.append(timestampDiv);
 
@@ -170,8 +174,49 @@ function load_email(email) {
             const body = document.createElement('div');
             body.style.order = '4';
             body.style.paddingTop = '20px';
-            body.style.minHeight = '20rem';
+            body.style.minHeight = '20px';
+            body.style.paddingBottom = '20px';
             body.innerHTML = email.body;
             emailMessageDiv.append(body);
+
+            const buttonArray = document.createElement('div');
+            buttonArray.style.order = '5';
+            buttonArray.style.display = 'flex';
+            buttonArray.style.flexDirection = 'row';
+            buttonArray.style.paddingTop = '10px';
+            emailMessageDiv.append(buttonArray);
+
+            const archiveButton = document.createElement('button');
+            archiveButton.style.order = '1';
+
+            if (email.archived === false) {
+                archiveButton.innerHTML = 'Archive';
+            } else {
+                archiveButton.innerHTML = 'Unarchive';
+            }
+
+            buttonArray.append(archiveButton);
+
+            archiveButton.onclick = function() {
+
+                if (archiveButton.innerHTML === 'Archive') {
+                    fetch(`/emails/${email.id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                archived: true
+                            })
+                        })
+                        .then(load_mailbox('inbox'));
+                } else {
+                    fetch(`/emails/${email.id}`, {
+                            method: 'PUT',
+                            body: JSON.stringify({
+                                archived: false
+                            })
+                        })
+                        .then(load_mailbox('inbox'));
+                }
+
+            }
         });
 }
