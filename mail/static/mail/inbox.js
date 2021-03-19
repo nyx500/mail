@@ -23,6 +23,7 @@ function compose_email(emailExists) {
         document.querySelector('#compose-recipients').value = '';
         document.querySelector('#compose-subject').value = '';
         document.querySelector('#compose-body').value = '';
+        document.querySelector('#compose-form').onsubmit = send_email;
     } else {
         document.querySelector('#compose-recipients').value = emailExists.sender;
         document.querySelector('#compose-recipients').style.color = 'blue';
@@ -32,12 +33,10 @@ function compose_email(emailExists) {
             document.querySelector('#compose-subject').value = `Re: ${emailExists.subject}`;
         }
         document.querySelector('#compose-subject').style.color = 'blue';
-        document.querySelector('#compose-body').style.whiteSpace = 'pre-line';
-        document.querySelector('#compose-body').value = `On ${emailExists.timestamp} ${emailExists.sender} wrote: ${emailExists.body}\n\n`;
-
+        document.querySelector('#compose-body').style.whiteSpace = 'pre-wrap';
+        document.querySelector('#compose-body').value = `\n   On ${emailExists.timestamp} ${emailExists.sender} wrote: ${emailExists.body}\n`;
+        document.querySelector('#compose-form').onsubmit = send_email;
     }
-
-    document.querySelector('#compose-form').onsubmit = send_email;
 }
 
 function load_mailbox(mailbox) {
@@ -117,7 +116,7 @@ function load_email(email, mailbox) {
     document.querySelector('#compose-view').style.display = 'none';
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#email-view').style.display = 'block';
-    document.querySelector('#email-view').style.whiteSpace = 'pre';
+    document.querySelector('#email-view').style.whiteSpace = 'pre-wrap';
 
     fetch(`/emails/${email.id}`, {
         method: 'PUT',
@@ -268,7 +267,7 @@ function send_email() {
     let emailObj = {
         recipients: document.querySelector('#compose-recipients').value,
         subject: document.querySelector('#compose-subject').value,
-        body: `${document.querySelector('#compose-body').value}`
+        body: ` ${document.querySelector('#compose-body').value}\n----------------------------------------------------------------------------------------------------------------------------------------------\n`
     }
 
     fetch('/emails', {
