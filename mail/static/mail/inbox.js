@@ -17,6 +17,7 @@ function compose_email(emailExists) {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'block';
 
+
     if (emailExists === null) {
         // Clear out composition fields if person has not clicked 'reply'
         document.querySelector('#compose-recipients').value = '';
@@ -31,8 +32,9 @@ function compose_email(emailExists) {
             document.querySelector('#compose-subject').value = `Re: ${emailExists.subject}`;
         }
         document.querySelector('#compose-subject').style.color = 'blue';
+        document.querySelector('#compose-body').style.whiteSpace = 'pre-line';
+        document.querySelector('#compose-body').value = `On ${emailExists.timestamp} ${emailExists.sender} wrote: ${emailExists.body}\n\n`;
 
-        document.querySelector('#compose-body').value = `On Jan 1 2020, 12:00 AM ${emailExists.sender} wrote: ${emailExists.body}`;
     }
 
     document.querySelector('#compose-form').onsubmit = send_email;
@@ -104,17 +106,18 @@ function load_mailbox(mailbox) {
                 emailDiv.append(timestampDiv);
 
                 emailDiv.addEventListener('click', () => {
-                    load_email(email);
+                    load_email(email, mailbox);
                 });
             });
         })
 };
 
-function load_email(email) {
+function load_email(email, mailbox) {
 
     document.querySelector('#compose-view').style.display = 'none';
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#email-view').style.display = 'block';
+    document.querySelector('#email-view').style.whiteSpace = 'pre';
 
     fetch(`/emails/${email.id}`, {
         method: 'PUT',
@@ -143,7 +146,11 @@ function load_email(email) {
 
             const subject = document.createElement('div');
             subject.style.order = '1';
-            subject.innerHTML = `<h3>Subject: ${email.subject}</h3>`;
+            if (email.subject.substring(0, 3).toUpperCase() === 'RE:') {
+                subject.innerHTML = `<h3>${email.subject}</h3>`;
+            } else {
+                subject.innerHTML = `<h3>Subject: ${email.subject}</h3>`;
+            }
             emailMessageDiv.append(subject);
 
             const senderAndTime = document.createElement('div');
@@ -246,7 +253,11 @@ function load_email(email) {
 
             replyButton.innerHTML = 'Reply';
 
-            buttonArray.append(replyButton);
+            console.log(mailbox);
+
+            if (mailbox === 'inbox') {
+                buttonArray.append(replyButton);
+            }
 
             replyButton.addEventListener('click', () => compose_email(email));
         });
@@ -257,7 +268,7 @@ function send_email() {
     let emailObj = {
         recipients: document.querySelector('#compose-recipients').value,
         subject: document.querySelector('#compose-subject').value,
-        body: document.querySelector('#compose-body').value
+        body: `${document.querySelector('#compose-body').value}`
     }
 
     fetch('/emails', {
